@@ -15,9 +15,9 @@ const db = mysql.createConnection(
     {
       host: 'localhost',
       //process.env.DB_USER
-      user: 'root',
+      user: process.env.DB_USER,
       //process.env.DB_PASSWORD
-      password: 'passybears',
+      password: process.env.DB_PASSWORD,
       database: 'employees_db'
     },
     console.log(`Connected to the classlist_db database.`)
