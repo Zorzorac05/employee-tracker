@@ -5,20 +5,20 @@ CREATE DATABASE employees_db;
 -- go into the database
 use employees_db;
 
--- create the departments table
-create table department (
+-- create the tables
+create table department(
     id int not null,
     name varchar(30),
     primary key (id)
 );
 
-create table role (
+create table role(
     id int not null,
     title varchar(30),
     salary decimal,
     department_id int,
     primary key (id),
-    foreign key (department_id),
+    foreign key (department_id)
     references department(id)
 );
 
@@ -28,6 +28,6 @@ create table employee(
     last_name varchar(30),
     role_id int,
     manager_id int,
-    foreign key (role_id),
+    foreign key (role_id)
     references role(id)
 );
