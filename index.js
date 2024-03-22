@@ -23,7 +23,7 @@ const db = mysql.createConnection(
     console.log(`Connected to the classlist_db database.`)
 );
 
-//functions to respond to input
+//view departments
 function viewDepartments(){
     //querry to view formatted table showing the department names and department ids
     db.query('SELECT * FROM department', function (err, results) {
@@ -31,6 +31,7 @@ function viewDepartments(){
     });
 }
 
+//view the roles info
 function viewRoles(){
     //querry to view job title, role id, the department that role belongs to and the salary of the employee
     db.query('SELECT * FROM role', function (err, results) {
@@ -38,6 +39,7 @@ function viewRoles(){
     });
 }
 
+//view employee info
 function viewEmployees(){
     //querry to view formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
     //SELECT * FROM employee JOIN role USING (role_id)
@@ -47,24 +49,96 @@ function viewEmployees(){
     });
 }
 
+//add department
 function addDepartment(){
     //prompt user to enter the name of the department and that department is added to the database
-    console.log("you are here");
-    db.query('SELECT * FROM role', function (err, results) {
-        console.log(results);
+    inquirer.prompt([
+        {
+            message: 'What is the new department?',
+            name: 'newDep',
+        }
+    ])
+        .then((response) => {
+            console.log(response);
+            db.query(`INSERT INTO department (name) VALUES (?);`, response.newDep ,function (err, results) {
+                console.log(typeof(response.newDep));
+                console.log("New department added");
+            });
+        });
+}
+
+//add a role
+function addRole(){
+    //prompt user to enter the name, salary, and department for the role and that role is added to the database
+    inquirer.prompt([
+        {
+            message: 'What is the role?',
+            name: 'newRole',
+        },
+        {
+            message: 'What is the salary of the role?',
+            name: 'newSalary',
+        },
+        {
+            message: 'What department is the role part of?',
+            name: 'newDep',
+        }
+    ])
+        .then((response) => {
+            let tempArray = [response.newRole, response.newSalary, response.newDep];
+            db.query(`INSERT INTO role (title, salary, department_id) VALUES (?,?,?);`,tempArray ,function (err, results) {
+                console.log("added new role");
+            });
+        });
+}
+
+//add a new employee
+function addEmployee(){
+    //prompt user to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
+    inquirer.prompt([
+        {
+            message: 'What is the first name?',
+            name: 'newFirst',
+        },
+        {
+            message: 'What is the last name?',
+            name: 'newLast',
+        },
+        {
+            message: 'What is the role?',
+            name: 'newRole',
+        },
+        {
+            message: 'Who is their manager?',
+            name: 'newMan',
+        },
+    ])
+    .then((response) => {
+        let tempArray = [response.newFirst, response.newLast, response.newRole, response.newMan];
+        db.query(`INSERT INTO employee (first_name, Last_name, role_id, manager_id) VALUES (?,?,?,?);`,tempArray ,function (err, results) {
+            console.log("added new employee");
+        });
     });
 }
 
-function addRole(){
-    //prompt user to enter the name, salary, and department for the role and that role is added to the database
-}
-
-function addEmployee(){
-    //prompt user to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-}
-
 function updateEmployees(){
-    //prompt user to select an employee to update and their new role and this information is updated in the database 
+    //prompt user to select an employee to update and their new role and this information is updated in the database
+    inquirer.prompt([
+        {
+            message: 'enter the id of the employee that needs a role changed',
+            name: 'updatee',
+        },
+        {
+            message: 'What is the new role?',
+            name: 'updated',
+        }
+    ])
+    .then((response) => {
+        let tempArray = [response.updated, response.updatee];
+        db.query('update employee set role_id = ? where id = ?', tempArray, function (err, results) {
+            console.log("Employee updated");
+        });
+    });
 }
 
 //starter function
