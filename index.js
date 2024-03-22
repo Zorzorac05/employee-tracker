@@ -29,6 +29,7 @@ function viewDepartments(){
     db.query('SELECT * FROM department', function (err, results) {
         console.log(results);
     });
+    init();
 }
 
 //view the roles info
@@ -37,16 +38,17 @@ function viewRoles(){
     db.query('SELECT * FROM role', function (err, results) {
         console.log(results);
     });
+    init();
 }
 
 //view employee info
 function viewEmployees(){
     //querry to view formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
     //SELECT * FROM employee JOIN role USING (role_id)
-    //SELECT * from employee join role_id on employee.role_id = role.id
-    db.query('SELECT * from employee join role_id using (role.id)', function (err, results) {
+    db.query('SELECT * from employee left join role on employee.roll_id = role.id', function (err, results) {
         console.log(results);
     });
+    init();
 }
 
 //add department
@@ -58,13 +60,14 @@ function addDepartment(){
             name: 'newDep',
         }
     ])
-        .then((response) => {
-            console.log(response);
-            db.query(`INSERT INTO department (name) VALUES (?);`, response.newDep ,function (err, results) {
-                console.log(typeof(response.newDep));
-                console.log("New department added");
-            });
+    .then((response) => {
+        console.log(response);
+        db.query(`INSERT INTO department (name) VALUES (?);`, response.newDep ,function (err, results) {
+            console.log(typeof(response.newDep));
+            console.log("New department added");
         });
+    });
+    init();
 }
 
 //add a role
@@ -84,12 +87,13 @@ function addRole(){
             name: 'newDep',
         }
     ])
-        .then((response) => {
-            let tempArray = [response.newRole, response.newSalary, response.newDep];
-            db.query(`INSERT INTO role (title, salary, department_id) VALUES (?,?,?);`,tempArray ,function (err, results) {
-                console.log("added new role");
-            });
+    .then((response) => {
+        let tempArray = [response.newRole, response.newSalary, response.newDep];
+        db.query(`INSERT INTO role (title, salary, department_id) VALUES (?,?,?);`,tempArray ,function (err, results) {
+            console.log("added new role");
         });
+    });
+    init();
 }
 
 //add a new employee
@@ -119,6 +123,7 @@ function addEmployee(){
             console.log("added new employee");
         });
     });
+    init();
 }
 
 function updateEmployees(){
@@ -139,6 +144,54 @@ function updateEmployees(){
             console.log("Employee updated");
         });
     });
+    init();
+}
+
+//update and employee's manager
+function updateEmployeesManager(){
+    //prompt user to select an employee to update and their new manager and this information is updated in the database
+    inquirer.prompt([
+        {
+            message: 'enter the id of the employee that needs a manager changed',
+            name: 'updatee',
+        },
+        {
+            message: 'Who is the new Manager?',
+            name: 'updated',
+        }
+    ])
+    .then((response) => {
+        let tempArray = [response.updated, response.updatee];
+        db.query('update employee set manager_id = ? where id = ?', tempArray, function (err, results) {
+            console.log("Employee updated");
+        });
+    });
+    init();
+}
+
+//delete info from the database
+function deleteInfo() {
+    inquirer.prompt([
+        {
+            type: 'list',
+            message: 'What table do you want to delete from?',
+            name: 'table',
+            choices: ["department", "role", "employee"]
+        },
+        {
+            message: "what id from the table do you want to delete?",
+            name: "deleting"
+        }
+    ])
+    .then((response) => {
+        let tempArray = [response.table, parseInt(response.deleting)];
+        console.log(tempArray);
+        db.query('delete from ? where id = ?', tempArray, function (err, results) {
+            console.log(results);
+            console.log("row deleted");
+        });
+    });
+    //init();
 }
 
 //starter function
@@ -148,12 +201,15 @@ function init() {
             type: 'list',
             message: 'What do you want to do?',
             name: 'firstQuestion',
-            choices: ["View all departments","View all Roles", "View all Employees", "Add a Department", "Add a Role", "Add an Employee", "Update an employee role"]
+            choices: ["View all departments","View all Roles", "View all Employees", "Add a Department", "Add a Role", "Add an Employee", "Update an employee role", "Update an employee's manager", "delete something from a table"]
         }
     ])
         .then((response) => {
             //call function to respond to given prompt using the switch based in first input from inquire
             switch (response.firstQuestion){
+                case "View all departments":
+                    viewDepartments();
+                    break;
                 case "View all Roles":
                     viewRoles();
                     break;
@@ -172,8 +228,11 @@ function init() {
                 case "Update an employee role":
                     updateEmployees();
                     break;
-                case "View all departments":
-                    viewDepartments();
+                case "Update an employee's manager":
+                    updateEmployeesManager();
+                    break;
+                case "delete something from a table":
+                    deleteInfo();
                     break;
                 }
             }
