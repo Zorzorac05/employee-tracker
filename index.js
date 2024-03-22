@@ -45,7 +45,7 @@ function viewRoles(){
 function viewEmployees(){
     //querry to view formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
     //SELECT * FROM employee JOIN role USING (role_id)
-    db.query('SELECT * from employee left join role on employee.roll_id = role.id', function (err, results) {
+    db.query('SELECT * from employee', function (err, results) {
         console.log(results);
     });
     init();
@@ -63,11 +63,9 @@ function addDepartment(){
     .then((response) => {
         console.log(response);
         db.query(`INSERT INTO department (name) VALUES (?);`, response.newDep ,function (err, results) {
-            console.log(typeof(response.newDep));
             console.log("New department added");
         });
     });
-    init();
 }
 
 //add a role
@@ -93,7 +91,6 @@ function addRole(){
             console.log("added new role");
         });
     });
-    init();
 }
 
 //add a new employee
@@ -123,7 +120,6 @@ function addEmployee(){
             console.log("added new employee");
         });
     });
-    init();
 }
 
 function updateEmployees(){
@@ -144,7 +140,6 @@ function updateEmployees(){
             console.log("Employee updated");
         });
     });
-    init();
 }
 
 //update and employee's manager
@@ -166,7 +161,6 @@ function updateEmployeesManager(){
             console.log("Employee updated");
         });
     });
-    init();
 }
 
 //delete info from the database
@@ -191,7 +185,6 @@ function deleteInfo() {
             console.log("row deleted");
         });
     });
-    //init();
 }
 
 //starter function
